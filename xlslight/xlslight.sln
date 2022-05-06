@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31624.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xlmlight", "xlmlight\xlmlight.csproj", "{E5E5AD5C-71F8-4545-8FD9-E90112BFC5D5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xlslight", "xlslight\xlslight.csproj", "{C12B2CC0-53B4-4BFE-B466-EAAD050A1E4E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E5E5AD5C-71F8-4545-8FD9-E90112BFC5D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E5E5AD5C-71F8-4545-8FD9-E90112BFC5D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E5E5AD5C-71F8-4545-8FD9-E90112BFC5D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E5E5AD5C-71F8-4545-8FD9-E90112BFC5D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C12B2CC0-53B4-4BFE-B466-EAAD050A1E4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C12B2CC0-53B4-4BFE-B466-EAAD050A1E4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C12B2CC0-53B4-4BFE-B466-EAAD050A1E4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C12B2CC0-53B4-4BFE-B466-EAAD050A1E4E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {3A51F10B-BF75-4045-A643-54A9F6829C03}
+		SolutionGuid = {7904F759-7B0C-4D00-A951-D8DE934E9F44}
 	EndGlobalSection
 EndGlobal
