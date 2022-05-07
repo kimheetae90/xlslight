@@ -94,7 +94,6 @@ namespace xlslight
                     result.Add(rowResult);
                 }
             }
-
             return result;
         }
     }
