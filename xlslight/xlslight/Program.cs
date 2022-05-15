@@ -6,14 +6,17 @@ namespace xlslight
     {
         static void Main(string[] args)
         {
-            string rpath = System.IO.Directory.GetCurrentDirectory() + "\\testRead.xlsx";
-            string wpath = System.IO.Directory.GetCurrentDirectory() + "\\testwrite.yaml";
+            string rxlspath = System.IO.Directory.GetCurrentDirectory() + "\\testRead.xlsx";
+            string ryamlpath = System.IO.Directory.GetCurrentDirectory() + "\\testRead.yaml";
+            string wxlspath = System.IO.Directory.GetCurrentDirectory() + "\\testWrite.xlsx";
+            string wyamlpath = System.IO.Directory.GetCurrentDirectory() + "\\testWrite.yaml";
 
-            //var input = YamlFile.Load(rpath);
+            var input = XLSXFile.Load(rxlspath);
+            var yaml = XLSConverter.ConvertXLSXToXLSLight(input);
+            System.Threading.Tasks.Task task = XLSLightFile.WriteAsync(wyamlpath, yaml);
 
-            var input = XLSXFile.Load(rpath);
-            XLSLightWorkbook yaml = XLSConverter.ConvertXLSXToYaml(input);
-            System.Threading.Tasks.Task task = XLSLightFile.WriteAsync(wpath, yaml);   
+            var xlsx = XLSConverter.ConvertXLSLightToXLSX(yaml);
+            XLSXFile.Write(wxlspath, xlsx);
         }
     }
 }

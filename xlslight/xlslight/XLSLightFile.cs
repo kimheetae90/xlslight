@@ -12,7 +12,7 @@ namespace xlslight
     public enum XLSLightProperty
     {
         Offset,
-        Type,
+        CellType,
         Value,
     }
 
@@ -31,14 +31,48 @@ namespace xlslight
     {
         public Dictionary<XLSLightProperty, string> property { get; set; }
 
+        public string GetValue()
+        {
+            return GetProperty(XLSLightProperty.Value);
+        }
+
+        public int GetCellType()
+        {
+            int typeInt = 0;
+            int.TryParse(GetProperty(XLSLightProperty.CellType), out typeInt);
+            return typeInt;
+        }
+
+        public KeyValuePair<int, int> GetOffset()
+        {
+            var offsetString = GetProperty(XLSLightProperty.Offset);
+            char[] delimiterChars = { ',' };
+            int offsetX = 0, offsetY = 0;
+            if (offsetString != null && offsetString.Length != 0)
+            {
+                string[] offsetSplitedString = offsetString.Split(delimiterChars);
+                if (offsetSplitedString.Length > 0)
+                {
+                    int.TryParse(offsetSplitedString[0], out offsetX);
+                }
+
+                if (offsetSplitedString.Length > 1)
+                {
+                    int.TryParse(offsetSplitedString[1], out offsetY);
+                }
+            }
+
+            return new KeyValuePair<int, int>(offsetX, offsetY);
+        }
+
         public void SetValue(string value)
         {
             SetProperty(XLSLightProperty.Value, value);
         }
 
-        public void SetType(int type)
+        public void SetCellType(int type)
         {
-            SetProperty(XLSLightProperty.Type, type.ToString());
+            SetProperty(XLSLightProperty.CellType, type.ToString());
         }
 
         public void SetOffset(int xOffset, int yOffset)
@@ -73,6 +107,19 @@ namespace xlslight
             }
             property.Add(propertyType, propertyValue);
         }
+
+        private string GetProperty(XLSLightProperty propertyType)
+        {
+            if (property == null)
+            {
+                return string.Empty;
+            }
+
+            string propertyValue = string.Empty;
+            property.TryGetValue(propertyType, out propertyValue);
+
+            return propertyValue;
+        }
     }
 
     static class XLSLightFile
@@ -83,8 +130,8 @@ namespace xlslight
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .Build();
 
-            var yaml = serializer.Serialize(workbook);
-            await File.WriteAllTextAsync(path, yaml);
+            var xlslight = serializer.Serialize(workbook);
+            await File.WriteAllTextAsync(path, xlslight);
         }
 
         public static XLSLightWorkbook Load(string path)

@@ -8,35 +8,29 @@ using System.Threading.Tasks;
 
 namespace xlslight
 {
-    public interface ICellInfoConvert
-    {
-
-    }
-
     public class XLSConverter
     {
-        public static XLSLightWorkbook ConvertXLSXToYaml(XSSFWorkbook xlsx)
+        public static XLSLightWorkbook ConvertXLSXToXLSLight(XSSFWorkbook xlsx)
         {
-            XLSLightWorkbook yaml = new XLSLightWorkbook();
+            var xlslight = new XLSLightWorkbook();
             int xOffset = -1, yOffset = -1;
-            List<XLSLightSheet> yamlSheets = new List<XLSLightSheet>();
+            var xlslightSheets = new List<XLSLightSheet>();
 
             for (int sheetCount = 0; sheetCount < xlsx.NumberOfSheets; sheetCount++)
             {
-                XLSLightSheet yamlSheet = new XLSLightSheet();
-                ISheet xlsxSheet = xlsx.GetSheetAt(sheetCount);
-                yamlSheet.name = xlsxSheet.SheetName;
-                List<XLSLightCell> yamlCells = new List<XLSLightCell>();
+                var xlslightSheet = new XLSLightSheet();
+                var xlsxSheet = xlsx.GetSheetAt(sheetCount);
+                xlslightSheet.name = xlsxSheet.SheetName;
+                var xlslightCells = new List<XLSLightCell>();
 
                 xOffset = yOffset = 0;
-
                 for (int rowCount = 0; rowCount <= xlsxSheet.LastRowNum; rowCount++)
                 {
-                    IRow xlsxRow = xlsxSheet.GetRow(rowCount);
+                    var xlsxRow = xlsxSheet.GetRow(rowCount);
 
                     for (int columnCount = 0; columnCount < xlsxRow.LastCellNum; columnCount++)
                     {
-                        ICell xlsxCell = xlsxRow.GetCell(columnCount);
+                        var xlsxCell = xlsxRow.GetCell(columnCount);
 
                         if (xlsxCell == null || xlsxCell.CellType == CellType.Blank)
                         {
@@ -44,51 +38,114 @@ namespace xlslight
                             continue;
                         }
 
-                        XLSLightCell yamlCell = new XLSLightCell();
-                        yamlCell.SetOffset(xOffset, yOffset);
+                        var xlslightCell = new XLSLightCell();
+                        xlslightCell.SetOffset(xOffset, yOffset);
                         xOffset = 0;
                         yOffset = 0;
-                        yamlCell.SetType((int)xlsxCell.CellType);                        
+                        xlslightCell.SetCellType((int)xlsxCell.CellType);                        
                         switch (xlsxCell.CellType)
                         {
                             case CellType.Formula:
-                                yamlCell.SetValue(xlsxCell.CellFormula);
+                                xlslightCell.SetValue(xlsxCell.CellFormula);
                                 break;
                             case CellType.Error:
-                                yamlCell.SetValue(xlsxCell.ErrorCellValue.ToString());
+                                xlslightCell.SetValue(xlsxCell.ErrorCellValue.ToString());
                                 break;
                             case CellType.Numeric:
-                                yamlCell.SetValue(xlsxCell.NumericCellValue.ToString());
+                                xlslightCell.SetValue(xlsxCell.NumericCellValue.ToString());
                                 break;
                             case CellType.Boolean:
-                                yamlCell.SetValue(xlsxCell.BooleanCellValue.ToString());
+                                xlslightCell.SetValue(xlsxCell.BooleanCellValue ? "TRUE" : "FALSE");
                                 break;
                             case CellType.String:
-                                yamlCell.SetValue(xlsxCell.StringCellValue);
+                                xlslightCell.SetValue(xlsxCell.StringCellValue);
                                 break;
                         }
 
-                        yamlCells.Add(yamlCell);
+                        xlslightCells.Add(xlslightCell);
                         xOffset++;
                     }
 
                     xOffset = 0;
                     yOffset++;
                 }
-                yamlSheet.cells = yamlCells.ToArray();
-                yamlSheets.Add(yamlSheet);
+                xlslightSheet.cells = xlslightCells.ToArray();
+                xlslightSheets.Add(xlslightSheet);
             }
 
-            yaml.sheets = yamlSheets.ToArray();
+            xlslight.sheets = xlslightSheets.ToArray();
 
-            return yaml;
+            return xlslight;
         }
 
-        public static XSSFWorkbook ConvertXLSXToYaml(XLSLightWorkbook yaml)
+        public static XSSFWorkbook ConvertXLSLightToXLSX(XLSLightWorkbook xlslight)
         {
-            XSSFWorkbook workbook = new XSSFWorkbook();
+            var workbook = new XSSFWorkbook();
 
-            
+            foreach (var originSheet in xlslight.sheets)
+            {
+                var sheet = workbook.CreateSheet(originSheet.name);
+                IRow row = null;
+                int rowIter = 0, columnIter = 0;
+
+                foreach (var originCell in originSheet.cells)
+                {
+                    var offset = originCell.GetOffset();
+                    var value = originCell.GetValue();
+                    var type = originCell.GetCellType();
+
+                    int offsetX = offset.Key;
+                    int offsetY = offset.Value;
+
+                    if(offsetY > 0)
+                    {
+                        columnIter = offsetX;
+                        rowIter += offsetY;
+                        row = sheet.CreateRow(rowIter);
+                    }
+                    else if(offsetX <= 1)
+                    {
+                        columnIter += 1;
+                    }
+                    else
+                    {
+                        columnIter += offsetX;
+                    }
+
+                    ICell cell = row.CreateCell(columnIter);
+                    CellType cellType = (CellType)type;
+                    cell.SetCellType(cellType);
+                    switch (cellType)
+                    {
+                        case CellType.Formula:
+                            cell.SetCellFormula(value);
+                            break;
+                        case CellType.Error:
+                            byte err = 0;
+                            byte.TryParse(value, out err);
+                            cell.SetCellErrorValue(err);
+                            break;
+                        case CellType.Numeric:
+                            double numb = 0;
+                            double.TryParse(value, out numb);
+                            cell.SetCellValue(numb);
+                            break;
+                        case CellType.Boolean:
+                            if(value == "TRUE")
+                            {
+                                cell.SetCellValue(true);
+                            }
+                            else if(value == "FALSE")
+                            {
+                                cell.SetCellValue(false);
+                            }
+                            break;
+                        case CellType.String:
+                            cell.SetCellValue(value);
+                            break;
+                    }
+                }
+            }
 
             return workbook;
         }
