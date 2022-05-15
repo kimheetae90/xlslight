@@ -12,7 +12,7 @@ namespace xlslight
     public enum XLSLightProperty
     {
         Offset,
-        CellType,
+        Type,
         Value,
     }
 
@@ -37,7 +37,7 @@ namespace xlslight
         public int GetCellType()
         {
             int typeInt = 0;
-            int.TryParse(GetProperty(XLSLightProperty.CellType), out typeInt);
+            int.TryParse(GetProperty(XLSLightProperty.Type), out typeInt);
             return typeInt;
         }
 
@@ -70,7 +70,7 @@ namespace xlslight
 
         public void SetCellType(int type)
         {
-            SetProperty(XLSLightProperty.CellType, type.ToString());
+            SetProperty(XLSLightProperty.Type, type.ToString());
         }
 
         public void SetOffset(int xOffset, int yOffset)
