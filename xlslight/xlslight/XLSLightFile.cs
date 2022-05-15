@@ -27,10 +27,8 @@ namespace xlslight
         public XLSLightCell[] cells { get; set; }
     }
 
-    public struct XLSLightCell
+    public class XLSLightCell : Dictionary<XLSLightProperty, string>
     {
-        public Dictionary<XLSLightProperty, string> property { get; set; }
-
         public string GetValue()
         {
             return GetProperty(XLSLightProperty.Value);
@@ -101,22 +99,13 @@ namespace xlslight
 
         private void SetProperty(XLSLightProperty propertyType, string propertyValue)
         {
-            if (property == null)
-            {
-                property = new Dictionary<XLSLightProperty, string>();
-            }
-            property.Add(propertyType, propertyValue);
+            Add(propertyType, propertyValue);
         }
 
         private string GetProperty(XLSLightProperty propertyType)
         {
-            if (property == null)
-            {
-                return string.Empty;
-            }
-
             string propertyValue = string.Empty;
-            property.TryGetValue(propertyType, out propertyValue);
+            TryGetValue(propertyType, out propertyValue);
 
             return propertyValue;
         }
