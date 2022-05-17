@@ -12,10 +12,10 @@ namespace xlslight
             string wyamlpath = System.IO.Directory.GetCurrentDirectory() + "\\testWrite.yaml";
 
             var input = XLSXFile.Load(rxlspath);
-            var yaml = XLSConverter.ConvertXLSXToXLSLight(input);
+            var yaml = ConvertController.ConvertXLSXToXLSLight(input);
             System.Threading.Tasks.Task task = XLSLightFile.WriteAsync(wyamlpath, yaml);
 
-            var xlsx = XLSConverter.ConvertXLSLightToXLSX(yaml);
+            var xlsx = ConvertController.ConvertXLSLightToXLSX(yaml);
             XLSXFile.Write(wxlspath, xlsx);
         }
     }

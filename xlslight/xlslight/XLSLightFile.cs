@@ -24,7 +24,65 @@ namespace xlslight
     public struct XLSLightSheet
     {
         public string name { get; set; }
+        public Dictionary<int, int> ColumnWidth { get; set; }
+        public Dictionary<int, short> RowHeight { get; set; }
         public XLSLightCell[] cells { get; set; }
+
+        public int GetColumnWidth(int column)
+        {
+            int width = 1;
+            if (ColumnWidth != null)
+            {
+                ColumnWidth.TryGetValue(column, out width);
+            }
+
+            return width;
+        }
+
+        public short GetRowHeight(int row)
+        {
+            short height = 1;
+            if (RowHeight != null)
+            {
+                RowHeight.TryGetValue(row, out height);
+            }
+
+            return height;
+        }
+
+        public void SetColumnWidth(int column, int width)
+        {
+            if (ColumnWidth == null)
+            {
+                ColumnWidth = new Dictionary<int, int>();
+            }
+
+            if(ColumnWidth.ContainsKey(column))
+            {
+                ColumnWidth[column] = width;
+            }
+            else
+            {
+                ColumnWidth.Add(column, width);
+            }
+        }
+
+        public void SetRowHeight(int row, short height)
+        {
+            if (RowHeight == null)
+            {
+                RowHeight = new Dictionary<int, short>();
+            }
+
+            if (RowHeight.ContainsKey(row))
+            {
+                RowHeight[row] = height;
+            }
+            else
+            {
+                RowHeight.Add(row, height);
+            }
+        }
     }
 
     public class XLSLightCell : Dictionary<XLSLightProperty, string>

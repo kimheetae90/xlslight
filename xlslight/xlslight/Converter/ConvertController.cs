@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace xlslight
 {
-    public class XLSConverter
+    public class ConvertController
     {
         public static XLSLightWorkbook ConvertXLSXToXLSLight(XSSFWorkbook xlsx)
         {
@@ -23,6 +23,8 @@ namespace xlslight
                 xlslightSheet.name = xlsxSheet.SheetName;
                 var xlslightCells = new List<XLSLightCell>();
 
+                int maxColumnCount = 0;
+
                 xOffset = yOffset = 0;
                 for (int rowCount = 0; rowCount <= xlsxSheet.LastRowNum; rowCount++)
                 {
@@ -30,6 +32,14 @@ namespace xlslight
 
                     if (xlsxRow == null)
                         continue;
+
+                    short rowHeight = xlsxRow.Height;
+                    xlslightSheet.SetRowHeight(rowCount, rowHeight);
+
+                    if (maxColumnCount < xlsxRow.LastCellNum)
+                    {
+                        maxColumnCount = xlsxRow.LastCellNum;
+                    }
 
                     for (int columnCount = 0; columnCount < xlsxRow.LastCellNum; columnCount++)
                     {
@@ -72,6 +82,13 @@ namespace xlslight
                     xOffset = 0;
                     yOffset++;
                 }
+
+                for(int columnCount = 0; columnCount <= maxColumnCount; columnCount++)
+                {
+                    int columnWidth = xlsxSheet.GetColumnWidth(columnCount);
+                    xlslightSheet.SetColumnWidth(columnCount, columnWidth);
+                }
+
                 xlslightSheet.cells = xlslightCells.ToArray();
                 xlslightSheets.Add(xlslightSheet);
             }
@@ -89,7 +106,7 @@ namespace xlslight
             {
                 var sheet = workbook.CreateSheet(originSheet.name);
                 IRow row = null;
-                int rowIter = 0, columnIter = 0;
+                int rowIter = 0, columnIter = -1;
 
                 foreach (var originCell in originSheet.cells)
                 {
@@ -152,6 +169,21 @@ namespace xlslight
                             cell.SetCellValue(value);
                             break;
                     }
+                }
+
+                foreach (var columnWidths in originSheet.ColumnWidth)
+                {
+                    sheet.SetColumnWidth(columnWidths.Key, columnWidths.Value);
+                }
+
+                foreach (var rowHeight in originSheet.RowHeight)
+                {
+                    IRow rowToSetHeight = sheet.GetRow(rowHeight.Key);
+                    if(rowToSetHeight == null)
+                    {
+                        rowToSetHeight = sheet.CreateRow(rowHeight.Key);
+                    }
+                    rowToSetHeight.Height = rowHeight.Value;
                 }
             }
 
