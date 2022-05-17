@@ -28,6 +28,9 @@ namespace xlslight
                 {
                     var xlsxRow = xlsxSheet.GetRow(rowCount);
 
+                    if (xlsxRow == null)
+                        continue;
+
                     for (int columnCount = 0; columnCount < xlsxRow.LastCellNum; columnCount++)
                     {
                         var xlsxCell = xlsxRow.GetCell(columnCount);
@@ -110,6 +113,11 @@ namespace xlslight
                     else
                     {
                         columnIter += offsetX;
+                    }
+
+                    if(row == null)
+                    {
+                        row = sheet.CreateRow(rowIter);
                     }
 
                     ICell cell = row.CreateCell(columnIter);
