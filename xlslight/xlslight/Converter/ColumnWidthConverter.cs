@@ -5,7 +5,7 @@ namespace xlslight.Converter
 {
     class ColumnWidthConverter : ConverterBase
     {
-        protected override void ConvertXToL_Implement(ISheet xlsx, XLSLightSheet xlslight, ref ConvertContext convertContext)
+        protected override void ConvertXToL_Implement(ISheet xlsx, XLSLightSheet xlslight)
         {
             int maxColumnIndex = 0;
             for (int rowCount = xlsx.FirstRowNum; rowCount <= xlsx.LastRowNum; rowCount++)
@@ -23,18 +23,18 @@ namespace xlslight.Converter
                 xlslight.SetColumnWidth(columnCount, columnWidth);
             }
         }
-        protected override void ConvertLToX_Implement(XLSLightSheet xlslight, ISheet xlsx, ref ConvertContext convertContext)
+        protected override void ConvertLToX_Implement(XLSLightSheet xlslight, ISheet xlsx)
         {
-            foreach (var columnWidthIter in xlslight.RowHeight)
+            foreach (var columnWidthIter in xlslight.ColumnWidth)
             {
                 int columnIndex = columnWidthIter.Key;
                 int width = columnWidthIter.Value;
                 xlsx.SetColumnWidth(columnIndex, width);
             }
         }
-        protected override void ConvertLToX_Implement(XLSLightWorkbook xlslight, XSSFWorkbook xlsx, ref ConvertContext convertContext) { }
-        protected override void ConvertXToL_Implement(XSSFWorkbook xlsx, XLSLightWorkbook xlslight, ref ConvertContext convertContext) { }
-        protected override void ConvertLToX_Implement(XLSLightCell xlslight, ICell xlsx, ref ConvertContext convertContext) { }
-        protected override void ConvertXToL_Implement(ICell xlsx, XLSLightCell xlslight, ref ConvertContext convertContext) { }
+        protected override void ConvertLToX_Implement(XLSLightWorkbook xlslight, XSSFWorkbook xlsx) { }
+        protected override void ConvertXToL_Implement(XSSFWorkbook xlsx, XLSLightWorkbook xlslight) { }
+        protected override void ConvertLToX_Implement(XLSLightCell xlslight, ICell xlsx) { }
+        protected override void ConvertXToL_Implement(ICell xlsx, XLSLightCell xlslight) { }
     }
 }

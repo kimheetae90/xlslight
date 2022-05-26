@@ -21,7 +21,7 @@ namespace xlslight
             using (var stream = new FileStream(path, FileMode.Open))
             {
                 stream.Position = 0;
-                result = new XSSFWorkbook(stream);                
+                result = new XSSFWorkbook(stream);
             }
 
             return result;

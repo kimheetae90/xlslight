@@ -19,14 +19,32 @@ namespace xlslight
     public class XLSLightWorkbook
     {
         public XLSLightSheet[] sheets { get; set; }
+
+        public XLSLightSheet GetSheet(int index)
+        {
+            if(sheets.Length < index && index >= 0)
+            {
+                return sheets[index];
+            }
+
+            return null;
+        }
     }
 
-    public struct XLSLightSheet
+    public class XLSLightSheet
     {
+        [YamlIgnore]
+        public XLSLightWorkbook Workbook { get; private set; }
+
         public string name { get; set; }
         public Dictionary<int, int> ColumnWidth { get; set; }
         public Dictionary<int, short> RowHeight { get; set; }
         public XLSLightCell[] cells { get; set; }
+
+        public XLSLightSheet(XLSLightWorkbook parent)
+        {
+            Workbook = parent;
+        }
 
         public int GetColumnWidth(int column)
         {
@@ -87,6 +105,14 @@ namespace xlslight
 
     public class XLSLightCell : Dictionary<XLSLightProperty, string>
     {
+        [YamlIgnore]
+        public XLSLightSheet Sheet { get; private set; }
+
+        public XLSLightCell(XLSLightSheet parent)
+        {
+            Sheet = parent;
+        }
+
         public string GetValue()
         {
             return GetProperty(XLSLightProperty.Value);

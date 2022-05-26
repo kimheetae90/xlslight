@@ -5,27 +5,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using xlslight.Converter;
 
 namespace xlslight
 {
-    public class ConvertController
+    public static class ConvertController
     {
+        public static ConverterContainer converterContainer = new ConverterContainer();
+
         public static XLSLightWorkbook ConvertXLSXToXLSLight(XSSFWorkbook xlsx)
         {
             var xlslight = new XLSLightWorkbook();
-            int xOffset = -1, yOffset = -1;
             var xlslightSheets = new List<XLSLightSheet>();
 
             for (int sheetCount = 0; sheetCount < xlsx.NumberOfSheets; sheetCount++)
             {
-                var xlslightSheet = new XLSLightSheet();
-                var xlsxSheet = xlsx.GetSheetAt(sheetCount);
-                xlslightSheet.name = xlsxSheet.SheetName;
+                var xlslightSheet = new XLSLightSheet(xlslight);
+                var xlsxSheet = xlsx.GetSheetAt(sheetCount);                
                 var xlslightCells = new List<XLSLightCell>();
+                int xOffset = 0, yOffset = 0;
 
-                int maxColumnCount = 0;
-
-                xOffset = yOffset = 0;
                 for (int rowCount = 0; rowCount <= xlsxSheet.LastRowNum; rowCount++)
                 {
                     var xlsxRow = xlsxSheet.GetRow(rowCount);
@@ -33,66 +32,34 @@ namespace xlslight
                     if (xlsxRow == null)
                         continue;
 
-                    short rowHeight = xlsxRow.Height;
-                    xlslightSheet.SetRowHeight(rowCount, rowHeight);
-
-                    if (maxColumnCount < xlsxRow.LastCellNum)
-                    {
-                        maxColumnCount = xlsxRow.LastCellNum;
-                    }
-
                     for (int columnCount = 0; columnCount < xlsxRow.LastCellNum; columnCount++)
                     {
                         var xlsxCell = xlsxRow.GetCell(columnCount);
-
                         if (xlsxCell == null || xlsxCell.CellType == CellType.Blank)
                         {
                             xOffset++;
                             continue;
                         }
 
-                        var xlslightCell = new XLSLightCell();
+                        var xlslightCell = new XLSLightCell(xlslightSheet);
+                        converterContainer.ConvertCell_XToL(xlsxCell, xlslightCell);
                         xlslightCell.SetOffset(xOffset, yOffset);
-                        xOffset = 0;
-                        yOffset = 0;
-                        xlslightCell.SetCellType((int)xlsxCell.CellType);                        
-                        switch (xlsxCell.CellType)
-                        {
-                            case CellType.Formula:
-                                xlslightCell.SetValue(xlsxCell.CellFormula);
-                                break;
-                            case CellType.Error:
-                                xlslightCell.SetValue(xlsxCell.ErrorCellValue.ToString());
-                                break;
-                            case CellType.Numeric:
-                                xlslightCell.SetValue(xlsxCell.NumericCellValue.ToString());
-                                break;
-                            case CellType.Boolean:
-                                xlslightCell.SetValue(xlsxCell.BooleanCellValue ? "TRUE" : "FALSE");
-                                break;
-                            case CellType.String:
-                                xlslightCell.SetValue(xlsxCell.StringCellValue);
-                                break;
-                        }
 
+                        xOffset = 1;
+                        yOffset = 0;
                         xlslightCells.Add(xlslightCell);
-                        xOffset++;
                     }
 
                     xOffset = 0;
                     yOffset++;
                 }
 
-                for(int columnCount = 0; columnCount <= maxColumnCount; columnCount++)
-                {
-                    int columnWidth = xlsxSheet.GetColumnWidth(columnCount);
-                    xlslightSheet.SetColumnWidth(columnCount, columnWidth);
-                }
-
+                converterContainer.ConvertSheet_XToL(xlsxSheet, xlslightSheet);
                 xlslightSheet.cells = xlslightCells.ToArray();
                 xlslightSheets.Add(xlslightSheet);
             }
 
+            converterContainer.ConvertWorkBook_XToL(xlsx, xlslight);
             xlslight.sheets = xlslightSheets.ToArray();
 
             return xlslight;
@@ -102,28 +69,25 @@ namespace xlslight
         {
             var workbook = new XSSFWorkbook();
 
-            foreach (var originSheet in xlslight.sheets)
+            foreach(var xlsLightSheet in xlslight.sheets)
             {
-                var sheet = workbook.CreateSheet(originSheet.name);
+                var xlsxSheet = workbook.CreateSheet();
                 IRow row = null;
                 int rowIter = 0, columnIter = -1;
 
-                foreach (var originCell in originSheet.cells)
+                foreach (var xlsxLightCell in xlsLightSheet.cells)
                 {
-                    var offset = originCell.GetOffset();
-                    var value = originCell.GetValue();
-                    var type = originCell.GetCellType();
-
+                    var offset = xlsxLightCell.GetOffset();
                     int offsetX = offset.Key;
                     int offsetY = offset.Value;
 
-                    if(offsetY > 0)
+                    if (offsetY > 0)
                     {
                         columnIter = offsetX;
                         rowIter += offsetY;
-                        row = sheet.CreateRow(rowIter);
+                        row = xlsxSheet.CreateRow(rowIter);
                     }
-                    else if(offsetX <= 1)
+                    else if (offsetX <= 1)
                     {
                         columnIter += 1;
                     }
@@ -132,60 +96,17 @@ namespace xlslight
                         columnIter += offsetX;
                     }
 
-                    if(row == null)
+                    if (row == null)
                     {
-                        row = sheet.CreateRow(rowIter);
+                        row = xlsxSheet.CreateRow(rowIter);
                     }
 
-                    ICell cell = row.CreateCell(columnIter);
-                    CellType cellType = (CellType)type;
-                    cell.SetCellType(cellType);
-                    switch (cellType)
-                    {
-                        case CellType.Formula:
-                            cell.SetCellFormula(value);
-                            break;
-                        case CellType.Error:
-                            byte err = 0;
-                            byte.TryParse(value, out err);
-                            cell.SetCellErrorValue(err);
-                            break;
-                        case CellType.Numeric:
-                            double numb = 0;
-                            double.TryParse(value, out numb);
-                            cell.SetCellValue(numb);
-                            break;
-                        case CellType.Boolean:
-                            if(value == "TRUE")
-                            {
-                                cell.SetCellValue(true);
-                            }
-                            else if(value == "FALSE")
-                            {
-                                cell.SetCellValue(false);
-                            }
-                            break;
-                        case CellType.String:
-                            cell.SetCellValue(value);
-                            break;
-                    }
+                    ICell xlsxCell = row.CreateCell(columnIter);
+                    converterContainer.ConvertCell_LToX(xlsxLightCell, xlsxCell);
                 }
-
-                foreach (var columnWidths in originSheet.ColumnWidth)
-                {
-                    sheet.SetColumnWidth(columnWidths.Key, columnWidths.Value);
-                }
-
-                foreach (var rowHeight in originSheet.RowHeight)
-                {
-                    IRow rowToSetHeight = sheet.GetRow(rowHeight.Key);
-                    if(rowToSetHeight == null)
-                    {
-                        rowToSetHeight = sheet.CreateRow(rowHeight.Key);
-                    }
-                    rowToSetHeight.Height = rowHeight.Value;
-                }
+                converterContainer.ConvertSheet_LToX(xlsLightSheet, xlsxSheet);
             }
+            converterContainer.ConvertWorkBook_LToX(xlslight, workbook);
 
             return workbook;
         }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using xlslight.Converter;
 
 namespace xlslight
 {
@@ -10,6 +11,11 @@ namespace xlslight
             string ryamlpath = System.IO.Directory.GetCurrentDirectory() + "\\testRead.yaml";
             string wxlspath = System.IO.Directory.GetCurrentDirectory() + "\\testWrite.xlsx";
             string wyamlpath = System.IO.Directory.GetCurrentDirectory() + "\\testWrite.yaml";
+
+            ConvertController.converterContainer.converters.Add(new SheetNameConverter());
+            ConvertController.converterContainer.converters.Add(new RowHeightConverter());
+            ConvertController.converterContainer.converters.Add(new ColumnWidthConverter());
+            ConvertController.converterContainer.converters.Add(new TypeValueConverter());
 
             var input = XLSXFile.Load(rxlspath);
             var yaml = ConvertController.ConvertXLSXToXLSLight(input);
