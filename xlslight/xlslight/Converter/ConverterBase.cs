@@ -60,7 +60,13 @@ namespace xlslight.Converter
 
     public abstract class ConverterBase
     {
-        protected abstract void ConvertXToL_Implement(XSSFWorkbook xlsx, XLSLightWorkbook xlslight);
+        protected virtual void ConvertXToL_Implement(XSSFWorkbook xlsx, XLSLightWorkbook xlslight) { }
+        protected virtual void ConvertLToX_Implement(XLSLightWorkbook xlslight, XSSFWorkbook xlsx) { }
+        protected virtual void ConvertXToL_Implement(ISheet xlsx, XLSLightSheet xlslight) { }
+        protected virtual void ConvertLToX_Implement(XLSLightSheet xlslight, ISheet xlsx) { }
+        protected virtual void ConvertXToL_Implement(ICell xlsx, XLSLightCell xlslight) { }
+        protected virtual void ConvertLToX_Implement(XLSLightCell xlslight, ICell xlsx) { }
+
         public void ConvertXToL(XSSFWorkbook xlsx, XLSLightWorkbook xlslight)
         {
             if (xlsx != null && xlslight != null)
@@ -68,7 +74,6 @@ namespace xlslight.Converter
                 ConvertXToL_Implement(xlsx, xlslight);
             }
         }
-        protected abstract void ConvertLToX_Implement(XLSLightWorkbook xlslight, XSSFWorkbook xlsx);
         public void ConvertLToX(XLSLightWorkbook xlslight, XSSFWorkbook xlsx)
         {
             if (xlsx != null && xlslight != null)
@@ -77,7 +82,6 @@ namespace xlslight.Converter
             }
         }
 
-        protected abstract void ConvertXToL_Implement(ISheet xlsx, XLSLightSheet xlslight);
         public void ConvertXToL(ISheet xlsx, XLSLightSheet xlslight)
         {
             if (xlsx != null && xlslight != null)
@@ -85,7 +89,6 @@ namespace xlslight.Converter
                 ConvertXToL_Implement(xlsx, xlslight);
             }
         }
-        protected abstract void ConvertLToX_Implement(XLSLightSheet xlslight, ISheet xlsx);
         public void ConvertLToX(XLSLightSheet xlslight, ISheet xlsx)
         {
             if (xlsx != null && xlslight != null)
@@ -94,7 +97,6 @@ namespace xlslight.Converter
             }
         }
 
-        protected abstract void ConvertXToL_Implement(ICell xlsx, XLSLightCell xlslight);
         public void ConvertXToL(ICell xlsx, XLSLightCell xlslight)
         {
             if (xlsx != null && xlslight != null)
@@ -102,7 +104,6 @@ namespace xlslight.Converter
                 ConvertXToL_Implement(xlsx, xlslight);
             }
         }
-        protected abstract void ConvertLToX_Implement(XLSLightCell xlslight, ICell xlsx);
         public void ConvertLToX(XLSLightCell xlslight, ICell xlsx)
         {
             if (xlsx != null && xlslight != null)

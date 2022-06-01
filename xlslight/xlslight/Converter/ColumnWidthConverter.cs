@@ -32,9 +32,5 @@ namespace xlslight.Converter
                 xlsx.SetColumnWidth(columnIndex, width);
             }
         }
-        protected override void ConvertLToX_Implement(XLSLightWorkbook xlslight, XSSFWorkbook xlsx) { }
-        protected override void ConvertXToL_Implement(XSSFWorkbook xlsx, XLSLightWorkbook xlslight) { }
-        protected override void ConvertLToX_Implement(XLSLightCell xlslight, ICell xlsx) { }
-        protected override void ConvertXToL_Implement(ICell xlsx, XLSLightCell xlslight) { }
     }
 }
