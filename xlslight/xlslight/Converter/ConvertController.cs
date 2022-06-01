@@ -18,40 +18,43 @@ namespace xlslight
             var xlslight = new XLSLightWorkbook();
             var xlslightSheets = new List<XLSLightSheet>();
 
+            var prevOffset = new Offset(-1, 0);
+            var currOffset = new Offset(0, 0);
+
             for (int sheetCount = 0; sheetCount < xlsx.NumberOfSheets; sheetCount++)
             {
                 var xlslightSheet = new XLSLightSheet(xlslight);
                 var xlsxSheet = xlsx.GetSheetAt(sheetCount);                
                 var xlslightCells = new List<XLSLightCell>();
-                int xOffset = 0, yOffset = 0;
 
                 for (int rowCount = 0; rowCount <= xlsxSheet.LastRowNum; rowCount++)
                 {
                     var xlsxRow = xlsxSheet.GetRow(rowCount);
 
-                    if (xlsxRow == null)
-                        continue;
-
-                    for (int columnCount = 0; columnCount < xlsxRow.LastCellNum; columnCount++)
+                    if (xlsxRow != null)
                     {
-                        var xlsxCell = xlsxRow.GetCell(columnCount);
-                        if (xlsxCell == null || xlsxCell.CellType == CellType.Blank)
+                        for (int columnCount = 0; columnCount < xlsxRow.LastCellNum; columnCount++)
                         {
-                            xOffset++;
-                            continue;
+                            var xlsxCell = xlsxRow.GetCell(columnCount);
+                            if (xlsxCell == null || xlsxCell.CellType == CellType.Blank)
+                            {
+                                currOffset.x++;
+                                continue;
+                            }
+
+                            var xlslightCell = new XLSLightCell(xlslightSheet);
+                            converterContainer.ConvertCell_XToL(xlsxCell, xlslightCell);
+                            xlslightCell.SetOffset(currOffset - prevOffset);
+
+                            prevOffset = currOffset;
+                            currOffset = new Offset(0,0);
+                            xlslightCells.Add(xlslightCell);
                         }
-
-                        var xlslightCell = new XLSLightCell(xlslightSheet);
-                        converterContainer.ConvertCell_XToL(xlsxCell, xlslightCell);
-                        xlslightCell.SetOffset(xOffset, yOffset);
-
-                        xOffset = 1;
-                        yOffset = 0;
-                        xlslightCells.Add(xlslightCell);
                     }
 
-                    xOffset = 0;
-                    yOffset++;
+                    prevOffset.x = 0;
+                    currOffset.x = 0;
+                    currOffset.y++;
                 }
 
                 converterContainer.ConvertSheet_XToL(xlsxSheet, xlslightSheet);
@@ -78,22 +81,20 @@ namespace xlslight
                 foreach (var xlsxLightCell in xlsLightSheet.cells)
                 {
                     var offset = xlsxLightCell.GetOffset();
-                    int offsetX = offset.Key;
-                    int offsetY = offset.Value;
 
-                    if (offsetY > 0)
+                    if (offset.y > 0)
                     {
-                        columnIter = offsetX;
-                        rowIter += offsetY;
+                        columnIter = offset.x;
+                        rowIter += offset.y;
                         row = xlsxSheet.CreateRow(rowIter);
                     }
-                    else if (offsetX <= 1)
+                    else if (offset.x <= 1)
                     {
                         columnIter += 1;
                     }
                     else
                     {
-                        columnIter += offsetX;
+                        columnIter += offset.x;
                     }
 
                     if (row == null)
