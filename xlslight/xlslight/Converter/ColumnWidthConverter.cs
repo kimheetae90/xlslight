@@ -11,7 +11,8 @@ namespace xlslight.Converter
             for (int rowCount = xlsx.FirstRowNum; rowCount <= xlsx.LastRowNum; rowCount++)
             {
                 IRow row = xlsx.GetRow(rowCount);
-                if (row.LastCellNum > maxColumnIndex)
+                if (row != null &&
+                    row.LastCellNum > maxColumnIndex)
                 {
                     maxColumnIndex = row.LastCellNum;
                 }
