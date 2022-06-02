@@ -15,8 +15,6 @@ namespace xlslight
         private static string xlsxFileName;
         private static string xlsxPath;
 
-        private static FileSystemWatcher watcher;
-
         static void Main(string[] args)
         {
             directory = Directory.GetCurrentDirectory();
@@ -46,9 +44,9 @@ namespace xlslight
 
                 try
                 {
-                    System.IO.File.Delete(xlsxPath);
+                    File.Delete(xlsxPath);
                 }
-                catch (System.IO.IOException)
+                catch (IOException)
                 {
                     return;
                 }
@@ -85,13 +83,10 @@ namespace xlslight
         {
             var watcher = new FileSystemWatcher();
             watcher.Path = directory;
-            watcher.NotifyFilter = NotifyFilters.Attributes
-                                 | NotifyFilters.CreationTime
-                                 | NotifyFilters.DirectoryName
+            watcher.NotifyFilter = NotifyFilters.CreationTime
                                  | NotifyFilters.FileName
                                  | NotifyFilters.LastAccess
                                  | NotifyFilters.LastWrite
-                                 | NotifyFilters.Security
                                  | NotifyFilters.Size;
 
             watcher.Filter = "*.xlsx";
