@@ -18,11 +18,11 @@ namespace xlslight
 
     public class XLSLightWorkbook
     {
-        public XLSLightSheet[] sheets { get; set; }
+        public List<XLSLightSheet> sheets { get; set; }
 
         public XLSLightSheet GetSheet(int index)
         {
-            if(sheets.Length < index && index >= 0)
+            if(sheets.Count < index && index >= 0)
             {
                 return sheets[index];
             }
@@ -33,25 +33,17 @@ namespace xlslight
 
     public class XLSLightSheet
     {
-        [YamlIgnore]
-        public XLSLightWorkbook Workbook { get; private set; }
-
         public string name { get; set; }
-        public Dictionary<int, int> ColumnWidth { get; set; }
-        public Dictionary<int, short> RowHeight { get; set; }
+        public Dictionary<int, int> columnWidth { get; set; }
+        public Dictionary<int, short> rowHeight { get; set; }
         public XLSLightCell[] cells { get; set; }
-
-        public XLSLightSheet(XLSLightWorkbook parent)
-        {
-            Workbook = parent;
-        }
 
         public int GetColumnWidth(int column)
         {
             int width = 1;
-            if (ColumnWidth != null)
+            if (columnWidth != null)
             {
-                ColumnWidth.TryGetValue(column, out width);
+                columnWidth.TryGetValue(column, out width);
             }
 
             return width;
@@ -60,9 +52,9 @@ namespace xlslight
         public short GetRowHeight(int row)
         {
             short height = 1;
-            if (RowHeight != null)
+            if (rowHeight != null)
             {
-                RowHeight.TryGetValue(row, out height);
+                rowHeight.TryGetValue(row, out height);
             }
 
             return height;
@@ -70,49 +62,41 @@ namespace xlslight
 
         public void SetColumnWidth(int column, int width)
         {
-            if (ColumnWidth == null)
+            if (columnWidth == null)
             {
-                ColumnWidth = new Dictionary<int, int>();
+                columnWidth = new Dictionary<int, int>();
             }
 
-            if(ColumnWidth.ContainsKey(column))
+            if(columnWidth.ContainsKey(column))
             {
-                ColumnWidth[column] = width;
+                columnWidth[column] = width;
             }
             else
             {
-                ColumnWidth.Add(column, width);
+                columnWidth.Add(column, width);
             }
         }
 
         public void SetRowHeight(int row, short height)
         {
-            if (RowHeight == null)
+            if (rowHeight == null)
             {
-                RowHeight = new Dictionary<int, short>();
+                rowHeight = new Dictionary<int, short>();
             }
 
-            if (RowHeight.ContainsKey(row))
+            if (rowHeight.ContainsKey(row))
             {
-                RowHeight[row] = height;
+                rowHeight[row] = height;
             }
             else
             {
-                RowHeight.Add(row, height);
+                rowHeight.Add(row, height);
             }
         }
     }
 
     public class XLSLightCell : Dictionary<XLSLightProperty, string>
     {
-        [YamlIgnore]
-        public XLSLightSheet Sheet { get; private set; }
-
-        public XLSLightCell(XLSLightSheet parent)
-        {
-            Sheet = parent;
-        }
-
         public string GetValue()
         {
             return GetProperty(XLSLightProperty.Value);
@@ -168,28 +152,37 @@ namespace xlslight
 
     static class XLSLightFile
     {
-        public static async Task WriteAsync(string path, XLSLightWorkbook workbook)
+        public static void Write(string path, XLSLightWorkbook workbook)
         {
             var serializer = new SerializerBuilder()
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .Build();
 
-            var xlslight = serializer.Serialize(workbook);
-            await File.WriteAllTextAsync(path, xlslight);
+            if (serializer != null)
+            {
+                var xlslight = serializer.Serialize(workbook);
+                File.WriteAllText(path, xlslight);
+            }
         }
 
         public static XLSLightWorkbook Load(string path)
         {
-            XLSLightWorkbook result = new XLSLightWorkbook();
+            XLSLightWorkbook workbook = new XLSLightWorkbook();
 
             var deserializer = new DeserializerBuilder()
-                .WithNamingConvention(UnderscoredNamingConvention.Instance)
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .Build();
 
-            string text = File.ReadAllText(path);
-            result = deserializer.Deserialize<XLSLightWorkbook>(text);
-
-            return result;
+            if (deserializer != null)
+            {
+                string text = File.ReadAllText(path);
+                workbook = deserializer.Deserialize<XLSLightWorkbook>(text);
+                return workbook;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

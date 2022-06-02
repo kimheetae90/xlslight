@@ -26,10 +26,10 @@ namespace xlslight.Converter
         }
         protected override void ConvertLToX_Implement(XLSLightSheet xlslight, ISheet xlsx)
         {
-            foreach (var columnWidthIter in xlslight.ColumnWidth)
+            foreach (var columnWidthIter in xlslight.columnWidth)
             {
-                int columnIndex = columnWidthIter.Key;
-                int width = columnWidthIter.Value;
+                int columnIndex = (int)columnWidthIter.Key;
+                int width = (int)columnWidthIter.Value;
                 xlsx.SetColumnWidth(columnIndex, width);
             }
         }

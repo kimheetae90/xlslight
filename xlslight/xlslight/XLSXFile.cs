@@ -11,17 +11,23 @@ namespace xlslight
         {
             using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write))
             {
-                input.Write(fs);
+                if (fs != null)
+                {
+                    input.Write(fs);
+                }
             }   
         }
 
         public static XSSFWorkbook Load(string path)
         {
-            XSSFWorkbook result = new XSSFWorkbook();
+            XSSFWorkbook result = null;
             using (var stream = new FileStream(path, FileMode.Open))
             {
-                stream.Position = 0;
-                result = new XSSFWorkbook(stream);
+                if (stream != null)
+                {
+                    stream.Position = 0;
+                    result = new XSSFWorkbook(stream);
+                }
             }
 
             return result;

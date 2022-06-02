@@ -18,7 +18,7 @@ namespace xlslight.Converter
         }
         protected override void ConvertLToX_Implement(XLSLightSheet xlslight, ISheet xlsx)
         {
-            foreach (var rowHeightIter in xlslight.RowHeight)
+            foreach (var rowHeightIter in xlslight.rowHeight)
             {
                 int rowIndex = rowHeightIter.Key;
                 short height = rowHeightIter.Value;

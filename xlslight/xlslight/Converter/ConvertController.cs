@@ -23,7 +23,7 @@ namespace xlslight
 
             for (int sheetCount = 0; sheetCount < xlsx.NumberOfSheets; sheetCount++)
             {
-                var xlslightSheet = new XLSLightSheet(xlslight);
+                var xlslightSheet = new XLSLightSheet();
                 var xlsxSheet = xlsx.GetSheetAt(sheetCount);                
                 var xlslightCells = new List<XLSLightCell>();
 
@@ -42,7 +42,7 @@ namespace xlslight
                                 continue;
                             }
 
-                            var xlslightCell = new XLSLightCell(xlslightSheet);
+                            var xlslightCell = new XLSLightCell();
                             converterContainer.ConvertCell_XToL(xlsxCell, xlslightCell);
                             xlslightCell.SetOffset(currOffset - prevOffset);
 
@@ -63,7 +63,7 @@ namespace xlslight
             }
 
             converterContainer.ConvertWorkBook_XToL(xlsx, xlslight);
-            xlslight.sheets = xlslightSheets.ToArray();
+            xlslight.sheets = xlslightSheets;
 
             return xlslight;
         }
