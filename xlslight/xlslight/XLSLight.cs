@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using xlslight.Converter;
@@ -37,10 +36,11 @@ namespace xlslight
             Initialize();
             if (CreateXLSX())
             {
-                var w = CreateFileSystemWatcher();
                 var p = CreateExcelProcess();
                 p.Start();
                 p.WaitForExit();
+
+                SaveXLSLight();
 
                 try
                 {
@@ -53,12 +53,19 @@ namespace xlslight
             }
         }
 
-        private static void OnChanged(object sender, FileSystemEventArgs e)
+        private static void SaveXLSLight()
         {
+            var xlsx = XLSXFile.Load(xlsxPath);
+            if (xlsx == null)
+                return;
+
+            var xlsxlight = ConvertController.ConvertXLSXToXLSLight(xlsx);
+            XLSLightFile.Write(xlslightPath, xlsxlight);
         }
 
         private static void Initialize()
         {
+            //Todo : 옵션화
             ConvertController.converterContainer.converters.Add(new SheetNameConverter());
             ConvertController.converterContainer.converters.Add(new RowHeightConverter());
             ConvertController.converterContainer.converters.Add(new ColumnWidthConverter());
@@ -77,24 +84,6 @@ namespace xlslight
 
             XLSXFile.Write(xlsxPath, xlsx);
             return true;
-        }
-
-        private static FileSystemWatcher CreateFileSystemWatcher()
-        {
-            var watcher = new FileSystemWatcher();
-            watcher.Path = directory;
-            watcher.NotifyFilter = NotifyFilters.CreationTime
-                                 | NotifyFilters.FileName
-                                 | NotifyFilters.LastAccess
-                                 | NotifyFilters.LastWrite
-                                 | NotifyFilters.Size;
-
-            watcher.Filter = "*.xlsx";
-            watcher.IncludeSubdirectories = true;
-            watcher.Changed += OnChanged;
-            watcher.EnableRaisingEvents = true;
-
-            return watcher;
         }
 
         private static Process CreateExcelProcess()
