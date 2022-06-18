@@ -21,12 +21,18 @@ namespace xlslight
             var prevOffset = new Offset(-1, 0);
             var currOffset = new Offset(0, 0);
 
+            converterContainer.PreConvertXToL(xlsx, xlslight);
+
             for (int sheetCount = 0; sheetCount < xlsx.NumberOfSheets; sheetCount++)
             {
                 var xlslightSheet = new XLSLightSheet();
                 var xlsxSheet = xlsx.GetSheetAt(sheetCount);                
                 var xlslightCells = new List<XLSLightCell>();
 
+                xlslightSheet.Workbook = xlslight;
+
+                converterContainer.PreConvertXToL(xlsxSheet, xlslightSheet);
+                
                 for (int rowCount = 0; rowCount <= xlsxSheet.LastRowNum; rowCount++)
                 {
                     var xlsxRow = xlsxSheet.GetRow(rowCount);
@@ -43,7 +49,8 @@ namespace xlslight
                             }
 
                             var xlslightCell = new XLSLightCell();
-                            converterContainer.ConvertCell_XToL(xlsxCell, xlslightCell);
+                            xlslightCell.Sheet = xlslightSheet;
+                            converterContainer.ConvertXToL(xlsxCell, xlslightCell);
                             xlslightCell.SetOffset(currOffset - prevOffset);
 
                             prevOffset = currOffset;
@@ -57,12 +64,12 @@ namespace xlslight
                     currOffset.y++;
                 }
 
-                converterContainer.ConvertSheet_XToL(xlsxSheet, xlslightSheet);
+                converterContainer.ConvertXToL(xlsxSheet, xlslightSheet);
                 xlslightSheet.cells = xlslightCells.ToArray();
                 xlslightSheets.Add(xlslightSheet);
             }
 
-            converterContainer.ConvertWorkBook_XToL(xlsx, xlslight);
+            converterContainer.ConvertXToL(xlsx, xlslight);
             xlslight.sheets = xlslightSheets;
 
             return xlslight;
@@ -70,14 +77,16 @@ namespace xlslight
 
         public static XSSFWorkbook ConvertXLSLightToXLSX(XLSLightWorkbook xlslight)
         {
-            var workbook = new XSSFWorkbook();
+            var workbook = new XSSFWorkbook();            
 
-            foreach(var xlsLightSheet in xlslight.sheets)
+            converterContainer.PreConvertLToX(xlslight, workbook);
+            foreach (var xlsLightSheet in xlslight.sheets)
             {
                 var xlsxSheet = workbook.CreateSheet();
                 IRow row = null;
                 int rowIter = 0, columnIter = -1;
 
+                converterContainer.PreConvertLToX(xlsLightSheet, xlsxSheet);
                 foreach (var xlsxLightCell in xlsLightSheet.cells)
                 {
                     var offset = xlsxLightCell.GetOffset();
@@ -103,11 +112,11 @@ namespace xlslight
                     }
 
                     ICell xlsxCell = row.CreateCell(columnIter);
-                    converterContainer.ConvertCell_LToX(xlsxLightCell, xlsxCell);
+                    converterContainer.ConvertLToX(xlsxLightCell, xlsxCell);
                 }
-                converterContainer.ConvertSheet_LToX(xlsLightSheet, xlsxSheet);
+                converterContainer.ConvertLToX(xlsLightSheet, xlsxSheet);
             }
-            converterContainer.ConvertWorkBook_LToX(xlslight, workbook);
+            converterContainer.ConvertLToX(xlslight, workbook);
 
             return workbook;
         }

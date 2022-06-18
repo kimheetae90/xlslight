@@ -16,6 +16,15 @@ namespace xlslight
 
         static void Main(string[] args)
         {
+            Initialize();
+            var xlsx = XLSXFile.Load(Directory.GetCurrentDirectory() + "\\xlsxTest.xlsx");
+            var xlslight = ConvertController.ConvertXLSXToXLSLight(xlsx);            
+            xlsx = ConvertController.ConvertXLSLightToXLSX(xlslight);
+            XLSXFile.Write(Directory.GetCurrentDirectory() + "\\xlsxConvertTest.xlsx", xlsx);
+
+
+            return;
+
             directory = Directory.GetCurrentDirectory();
             xlslightFileName = "xlslightTest.yaml";
             xlslightPath = directory + "\\" + xlslightFileName;            
@@ -70,6 +79,7 @@ namespace xlslight
             ConvertController.converterContainer.converters.Add(new RowHeightConverter());
             ConvertController.converterContainer.converters.Add(new ColumnWidthConverter());
             ConvertController.converterContainer.converters.Add(new TypeValueConverter());
+            ConvertController.converterContainer.converters.Add(new CellStyleConverter());
         }
 
         private static bool CreateXLSX()

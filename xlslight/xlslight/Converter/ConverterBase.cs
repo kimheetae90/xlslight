@@ -12,14 +12,44 @@ namespace xlslight.Converter
     {
         public List<ConverterBase> converters = new List<ConverterBase>();
 
-        public void ConvertWorkBook_XToL(XSSFWorkbook xlsx, XLSLightWorkbook xlslight)
+        public void PreConvertXToL(XSSFWorkbook xlsx, XLSLightWorkbook xlslight)
+        {
+            foreach (var converter in converters)
+            {
+                converter.PreConvertXToL(xlsx, xlslight);
+            }
+        }
+        public void PreConvertLToX(XLSLightWorkbook xlslight, XSSFWorkbook xlsx)
+        {
+            foreach (var converter in converters)
+            {
+                converter.PreConvertLToX(xlslight, xlsx);
+            }
+        }
+
+        public void PreConvertXToL(ISheet xlsx, XLSLightSheet xlslight)
+        {
+            foreach (var converter in converters)
+            {
+                converter.PreConvertXToL(xlsx, xlslight);
+            }
+        }
+        public void PreConvertLToX(XLSLightSheet xlslight, ISheet xlsx)
+        {
+            foreach (var converter in converters)
+            {
+                converter.PreConvertLToX(xlslight, xlsx);
+            }
+        }
+
+        public void ConvertXToL(XSSFWorkbook xlsx, XLSLightWorkbook xlslight)
         {
             foreach (var converter in converters)
             {
                 converter.ConvertXToL(xlsx, xlslight);
             }
         }
-        public void ConvertWorkBook_LToX(XLSLightWorkbook xlslight, XSSFWorkbook xlsx)
+        public void ConvertLToX(XLSLightWorkbook xlslight, XSSFWorkbook xlsx)
         {
             foreach (var converter in converters)
             {
@@ -27,14 +57,14 @@ namespace xlslight.Converter
             }
         }
 
-        public void ConvertSheet_XToL(ISheet xlsx, XLSLightSheet xlslight)
+        public void ConvertXToL(ISheet xlsx, XLSLightSheet xlslight)
         {
             foreach (var converter in converters)
             {
                 converter.ConvertXToL(xlsx, xlslight);
             }
         }
-        public void ConvertSheet_LToX(XLSLightSheet xlslight, ISheet xlsx)
+        public void ConvertLToX(XLSLightSheet xlslight, ISheet xlsx)
         {
             foreach (var converter in converters)
             {
@@ -42,14 +72,14 @@ namespace xlslight.Converter
             }
         }
 
-        public void ConvertCell_XToL(ICell xlsx, XLSLightCell xlslight)
+        public void ConvertXToL(ICell xlsx, XLSLightCell xlslight)
         {
             foreach (var converter in converters)
             {
                 converter.ConvertXToL(xlsx, xlslight);
             }
         }
-        public void ConvertCell_LToX(XLSLightCell xlslight, ICell xlsx)
+        public void ConvertLToX(XLSLightCell xlslight, ICell xlsx)
         {
             foreach (var converter in converters)
             {
@@ -60,12 +90,47 @@ namespace xlslight.Converter
 
     public abstract class ConverterBase
     {
+        protected virtual void PreConvertXToL_Implement(XSSFWorkbook xlsx, XLSLightWorkbook xlslight) { }
+        protected virtual void PreConvertLToX_Implement(XLSLightWorkbook xlslight, XSSFWorkbook xlsx) { }
+        protected virtual void PreConvertXToL_Implement(ISheet xlsx, XLSLightSheet xlslight) { }
+        protected virtual void PreConvertLToX_Implement(XLSLightSheet xlslight, ISheet xlsx) { }
+
         protected virtual void ConvertXToL_Implement(XSSFWorkbook xlsx, XLSLightWorkbook xlslight) { }
         protected virtual void ConvertLToX_Implement(XLSLightWorkbook xlslight, XSSFWorkbook xlsx) { }
         protected virtual void ConvertXToL_Implement(ISheet xlsx, XLSLightSheet xlslight) { }
         protected virtual void ConvertLToX_Implement(XLSLightSheet xlslight, ISheet xlsx) { }
         protected virtual void ConvertXToL_Implement(ICell xlsx, XLSLightCell xlslight) { }
         protected virtual void ConvertLToX_Implement(XLSLightCell xlslight, ICell xlsx) { }
+
+        public void PreConvertXToL(XSSFWorkbook xlsx, XLSLightWorkbook xlslight)
+        {
+            if (xlsx != null && xlslight != null)
+            {
+                PreConvertXToL_Implement(xlsx, xlslight);
+            }
+        }
+        public void PreConvertLToX(XLSLightWorkbook xlslight, XSSFWorkbook xlsx)
+        {
+            if (xlsx != null && xlslight != null)
+            {
+                PreConvertLToX_Implement(xlslight, xlsx);
+            }
+        }
+
+        public void PreConvertXToL(ISheet xlsx, XLSLightSheet xlslight)
+        {
+            if (xlsx != null && xlslight != null)
+            {
+                PreConvertXToL_Implement(xlsx, xlslight);
+            }
+        }
+        public void PreConvertLToX(XLSLightSheet xlslight, ISheet xlsx)
+        {
+            if (xlsx != null && xlslight != null)
+            {
+                PreConvertLToX_Implement(xlslight, xlsx);
+            }
+        }
 
         public void ConvertXToL(XSSFWorkbook xlsx, XLSLightWorkbook xlslight)
         {
@@ -81,7 +146,7 @@ namespace xlslight.Converter
                 ConvertLToX_Implement(xlslight, xlsx);
             }
         }
-
+        
         public void ConvertXToL(ISheet xlsx, XLSLightSheet xlslight)
         {
             if (xlsx != null && xlslight != null)
